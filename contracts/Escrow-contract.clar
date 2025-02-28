@@ -16,11 +16,11 @@
     (match escrow-data
       escrow-entry
       (begin
-        (stx-transfer-memo escrow-entry.amount tx-sender contract-principal "Escrow Funding")
+        (stx-transfer? escrow-entry.amount tx-sender contract-principal)
         (map-set escrow { buyer: tx-sender, seller: seller }
                  { amount: escrow-entry.amount, status: "funded" })
         (ok "Escrow funded")))
-      (err "Escrow not found"))))
+      (err "Escrow not found")))
 
 (define-public (release-funds (buyer principal))
   (let ((escrow-data (map-get? escrow { buyer: buyer, seller: tx-sender })))
@@ -28,7 +28,7 @@
       escrow-entry
       (if (is-eq escrow-entry.status "funded")
           (begin
-            (stx-transfer-memo escrow-entry.amount contract-principal tx-sender "Escrow Release")
+            (stx-transfer? escrow-entry.amount contract-principal tx-sender)
             (map-delete escrow { buyer: buyer, seller: tx-sender })
             (ok "Funds released"))
           (err "Funds not funded")))
@@ -84,7 +84,7 @@
     (match escrow-data
       escrow-entry
       (begin
-        (stx-transfer-memo escrow-entry.amount tx-sender contract-principal "Escrow Funding")
+        (stx-transfer? escrow-entry.amount tx-sender contract-principal)
         (map-set escrow { buyer: tx-sender, seller: seller }
                  { amount: escrow-entry.amount, status: "funded" })
         (ok "Escrow funded")))
@@ -164,3 +164,4 @@
                 (ok "Escrow cancelled"))))
           (err "Cannot cancel after funding")))
       (err "User not verified"))))
+ 
